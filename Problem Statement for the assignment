@@ -1,0 +1,27 @@
+Problem Statement: This data set contains provider level data on Medicare payment and charges for the 100 most common procedures. The dataset is owned by the US government. It is freely available on data.gov.
+This dataset will show us how price for the same diagnosis and the same treatment and in the same city can vary differently across different providers. We can also analyze to detect fraud among providers. It reflects how inpatient hospital charges can differ among different providers in the US. Let's see what we can find out about Medicare payments.
+•	Find which state has the highest hospitalization charges
+•	Find which diagnosis has least cost and the state details too
+•	Identify the top 5 discharges and the diagnosis type and compute the average prices across the 3 cost metric
+Background:
+The Centers for Medicare & Medicaid Services (CMS) has prepared a public data set, the Provider Utilization and Payment Data Inpatient Public Use File (herein referred to as “Inpatient PUF”), with information on services and procedures provided to Medicare beneficiaries by hospital facilities. The Inpatient PUF contains hospital-specific charges for the more than 3,000 U.S. hospitals that receive Medicare Inpatient Prospective Payment System (IPPS) payments paid under Medicare based on a rate per discharge using the Medicare Severity Diagnosis Related Group (MS-DRG). The Inpatient PUF is available for fiscal years 2011 through 2015 and reflect 100% final-action (i.e., all claim adjustments have been resolved) IPPS discharges for the Medicare fee-for-service (FFS) population.
+Key data sources:
+The primary data source for these data is CMS’s Medicare Provider Analysis and Review (MEDPAR) inpatient data based on fiscal year (October 1st through September 30th). The NCH MEDPAR data contain 100 percent of Medicare final action discharges for beneficiaries who are enrolled in the FFS program as well as some managed care discharges. The types of discharges in the MEDPAR inpatient data include: IPPS short term, long term care, critical access hospital, religious non-medical, rehabilitation and psychiatric. Discharges, covered charges, total payments and MS-DRG information presented in the Inpatient PUF are restricted to IPPS short term hospitalizations for the FFS population.
+Data file:
+Detailed Data File 
+The following variables are included in the detailed Inpatient PUF data file: 
+DRG Definition: The code and description identifying the MS-DRG. MS-DRGs are a classification system that groups similar clinical conditions (diagnoses) and the procedures furnished by the hospital during the stay. 
+Provider Id: The CMS Certification Number (CCN) assigned to the Medicare certified hospital facility. 
+Provider Name: The name of the provider. 
+Provider Street Address: The provider’s street address. 
+Provider City: The city where the provider is located. 
+Provider State: The state where the provider is located. 
+Provider Zip Code: The provider’s zip code. 
+Provider HRR: The Hospital Referral Region (HRR) where the provider is located. 
+Total Discharges: The number of discharges billed by the provider for inpatient hospital services. 
+Average Covered Charges: The provider's average charge for services covered by Medicare for all discharges in the MS-DRG. These will vary from hospital to hospital because of differences in hospital charge structures. 
+Average Total Payments: The average total payments to all providers for the MS-DRG including the MS-DRG amount, teaching, disproportionate share, capital, and outlier payments for all cases. Also included in average total payments are co-payment and deductible amounts that the patient is responsible for and any additional payments by third parties for coordination of benefits.
+Average Medicare Payments: The average amount that Medicare pays to the provider for Medicare's share of the MS-DRG. Average Medicare payment amounts include the MS-DRG amount, teaching, disproportionate share, capital, and outlier payments for all cases. Medicare payments DO NOT include beneficiary co-payments and deductible amounts nor any additional payments from third parties for coordination of benefits. Note: In general, Medicare FFS claims with dates-of-service or dates-of-discharge on or after April 1, 2013, incurred a 2 percent reduction in Medicare payment
+Acquire data
+Data set available here and downloaded locally to the disk
+https://data.cms.gov/Medicare-Inpatient/Inpatient-Prospective-Payment-System-IPPS-Provider/97k6-zzx3
