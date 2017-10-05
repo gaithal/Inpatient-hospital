@@ -1,0 +1,121 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+
+---
+title: "US Medicare and payment charges"
+output:
+  html_document: default
+---
+```{r}
+chooseCRANmirror(graphics=FALSE, ind=1)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+#Acquire process
+#Load the US inpatient hospital data
+setwd("~/Guru/Pers/BIG DATA/assignments")
+hospi = read.csv('inpatient hospital data.csv')
+str(hospi)
+dim(hospi)
+```
+```{r}
+library(readr)
+library(proto)
+install.packages("ggplot2", dependencies = TRUE)
+library(ggplot2)
+library(stringr)
+library(scales)
+```
+```{r}
+#Refine process
+#The column names have spaces. Let's just rename them all
+names(hospi) <- c('drg_def', 'prov_id', 'prov_name', 'prov_address', 'prov_city', 'prov_state', 'prov_zip', 'referral_reg', 'total_discharges', 'mean_covered_charges', 'mean_total_payments', 'mean_medicare_payments')
+```
+```{r}
+# We need to get rid of the dollar sings in the charges and payments columns and convert to numeric
+hospi$mean_total_payments = hospi$mean_total_payments %>% str_replace("\\$", "")
+hospi$mean_total_payments = hospi$mean_total_payments %>% str_replace("\\," , "")
+str(hospi)
+hospi$mean_total_payments = as.numeric(hospi$mean_total_payments)
+hospi$mean_covered_charges = hospi$mean_covered_charges %>% str_replace("\\$", "")
+hospi$mean_covered_charges = hospi$mean_covered_charges %>% str_replace("\\," , "")
+hospi$mean_covered_charges = as.numeric(hospi$mean_covered_charges)
+hospi$mean_medicare_payments = hospi$mean_medicare_payments %>% str_replace("\\$", "")
+hospi$mean_medicare_payments= hospi$mean_medicare_payments %>% str_replace("\\," , "")
+hospi$mean_medicare_payments = as.numeric(hospi$mean_medicare_payments)
+str(hospi)
+head(hospi)
+```
+
+```{r}
+#Transform process
+#mean average provider coverage charges  by state
+library(dplyr)
+by_state <- hospi %>% group_by(prov_state) %>% 
+  summarise(mean=mean(mean_covered_charges)) %>% arrange(desc(mean))
+head(by_state, 10)
+
+```
+```{r}
+## Cheapest Diagnosis in each state as per Total Payment
+hospi %>% group_by(prov_state) %>% filter(mean_total_payments == min(mean_total_payments)) %>% do(head(.,1))  %>% select(prov_state, drg_def, mean_total_payments)
+```
+```{r}
+# Top 5 medical conditions by discharges
+IPC <- hospi %>%
+  select(drg_def, prov_id, total_discharges, mean_covered_charges,mean_total_payments, mean_medicare_payments) %>%
+  group_by(drg_def) %>%
+  summarise(total_discharges =sum(total_discharges), mean_covered_charges=mean(mean_covered_charges), mean_medicare_payments=mean(mean_medicare_payments), mean_total_payments=mean(mean_total_payments)) %>%
+  arrange(desc(total_discharges)) %>%
+  top_n(5, total_discharges)
+IPC
+```
+```{r}
+# Explore process
+p1 = ggplot(IPC) +aes(reorder(drg_def, total_discharges), weight = total_discharges/1000) +geom_bar() +theme(axis.text.x = element_text(angle = 60, hjust = 1))
+print(p1)
+```
+
+```{r}
+# Top 10 states based on covered charges
+ggplot(by_state[1:10,], aes(reorder(prov_state, -mean), mean)) + geom_bar(stat = "identity") +scale_y_continuous(labels = comma) + ggtitle(" Top 10 states based on total covered charges")
+```
+```{r}
+# Which hospital have highest ratio of medicare payment to total charges
+hospi %>%
+    mutate(payments_to_charges = mean_medicare_payments / mean_covered_charges) %>%
+    group_by(prov_name) %>%
+    summarize(m = mean(payments_to_charges)) %>%
+    arrange(-m) %>%
+    head(10) %>%
+    ggplot(aes(x=reorder(prov_name, -m), y = m)) + 
+        geom_bar(stat = 'identity', fill = 'dodgerblue4', color = 'white') + 
+        labs(x = '', y = '%', title = 'Total Medicare payments - % of Covered Charges') + 
+        scale_y_continuous(labels = scales::percent) +
+theme(axis.text.x = element_text(angle = 60, hjust = 1) )
+```
+```{r}
+# Average total payment by state
+library(data.table)
+hospi = as.data.table(hospi)
+AVTPS = hospi[, mean_total_payments, by= prov_name] %>% top_n(10, mean_total_payments)
+ggplot(data = AVTPS, mapping = aes(y = prov_name, x = mean_total_payments, colour = mean_total_payments)) + geom_point()
+```
+
+```{r} 
+#Model process
+#Develop linear model to understand statistics summary between medicare payment and total discharge
+model <- lm(formula=mean_medicare_payments ~ total_discharges,data = hospi)
+summary(model)
+
+```
+```{r}
+d = data.frame(hospi$mean_covered_charges, hospi$prov_id)
+aov(hospi$prov_id ~ hospi$mean_covered_charges, data = d) ->av
+summary(av)
+```
