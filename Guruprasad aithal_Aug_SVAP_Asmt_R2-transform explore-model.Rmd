@@ -118,3 +118,11 @@ d = data.frame(hospi$mean_covered_charges, hospi$prov_id)
 aov(hospi$prov_id ~ hospi$mean_covered_charges, data = d) ->av
 summary(av)
 ```
+```{r}
+library(plyr)
+df1 <- hospi %>%
+  filter(prov_state == "CA") %>%
+  group_by(prov_name) %>%
+  summarize(mc = max(total_discharges)) %>% arrange(desc(mc))
+df1
+```
